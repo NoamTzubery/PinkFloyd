@@ -23,7 +23,7 @@ with open("Pink_Floyd_DB.txt", 'r', encoding='utf-8') as f:
                 song_name = song_info[0]
                 composer = song_info[1]
                 duration = song_info[2]
-                lyrics = song_info[3]  # Assuming lyrics are included in the database
+                lyrics = song_info[3]
                 current_album['songs'].append({
                     'name': song_name,
                     'composer': composer,
@@ -31,14 +31,13 @@ with open("Pink_Floyd_DB.txt", 'r', encoding='utf-8') as f:
                     'lyrics': lyrics
                 })
         else:
-            # Handle unexpected lines or errors in file format
             continue
 
 # Print the names of the albums
 album_names = [album['name'] for album in albums]
 print(f"The albums list: {', '.join(album_names)}")
 
-
+#search for an album by giving a name
 def search_album(search_album_name):
     for album in albums:
         if album['name'].lower() == search_album_name.lower():
