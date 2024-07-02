@@ -31,7 +31,6 @@ def parse_database_file(database_file):
                         'lyrics': lyrics
                     })
             else:
-                # Handle unexpected lines or errors in file format
                 continue
 
     return albums
