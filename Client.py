@@ -4,7 +4,7 @@ import socket
 
 def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = ('localhost', 12345)
+    server_address = ('172.20.10.3', 12345)
     client_socket.connect(server_address)
 
     try:
@@ -35,6 +35,12 @@ def main():
                 elif command == "2":
                     album_name = input("Enter the album name: ")
                     client_socket.send(album_name.encode())
+                    response = client_socket.recv(1024).decode()
+                    print(response)
+
+                elif command == "3":
+                    song_name = input("Enter the song name: ")
+                    client_socket.send(song_name.encode())
                     response = client_socket.recv(1024).decode()
                     print(response)
 
