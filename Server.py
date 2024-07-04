@@ -40,10 +40,44 @@ def get_song_lyrics(song_name):
 
 def open_connection():
     curr_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    curr_server_socket.bind(('192.168.23.169', 12345))
+    curr_server_socket.bind(('localhost', 12345))
     curr_server_socket.listen(5)
     print("Server is listening on port 12345...")
     return curr_server_socket
+
+
+def handle_song_lyrics(song_name):
+    for album in albums:
+        for song in album['songs']:
+            if song['name'].lower() == song_name.lower():
+                return song['lyrics']
+    return None
+
+
+def handle_album_of_song(song_name):
+    for album in albums:
+        for song in album['songs']:
+            if song['name'].lower() == song_name.lower():
+                return album['name']
+    return None
+
+
+def handle_search_song_by_name(query):
+    results = []
+    for album in albums:
+        for song in album['songs']:
+            if query.lower() in song['name'].lower():
+                results.append(song['name'])
+    return results
+
+
+def handle_search_song_by_lyrics(query):
+    results = []
+    for album in albums:
+        for song in album['songs']:
+            if query.lower() in song['lyrics'].lower():
+                results.append(song['name'])
+    return results
 
 
 def handle_client(client_socket):
@@ -71,6 +105,43 @@ def handle_client(client_socket):
             song_name = client_socket.recv(1024).decode().strip()
             response = get_song_length(song_name)
             client_socket.send(response.encode('utf-8'))
+
+        elif command == "4":
+            client_socket.send(b"Enter the song name:\n")
+            song_name = client_socket.recv(1024).decode().strip()
+            song_lyrics = handle_song_lyrics(song_name)
+            if song_lyrics is not None:
+                response = f"Lyrics of the song '{song_name}':\n{song_lyrics}"
+            else:
+                response = f"No song found with the name '{song_name}'."
+            client_socket.send(response.encode())
+
+        elif command == "5":
+            song_name = client_socket.recv(1024).decode().strip()
+            album_name = handle_album_of_song(song_name)
+            if album_name is not None:
+                response = f"The song '{song_name}' is in the album '{album_name}'."
+            else:
+                response = f"No song found with the name '{song_name}'."
+            client_socket.send(response.encode())
+
+        elif command == "6":
+            query = client_socket.recv(1024).decode().strip()
+            results = handle_search_song_by_name(query)
+            if results:
+                response = f"Songs matching '{query}':\n" + "\n".join(results)
+            else:
+                response = f"No songs found matching '{query}'."
+            client_socket.send(response.encode())
+
+        elif command == "7":
+            query = client_socket.recv(1024).decode().strip()
+            results = handle_search_song_by_lyrics(query)
+            if results:
+                response = f"Songs with lyrics matching '{query}':\n" + "\n".join(results)
+            else:
+                response = f"No songs found with lyrics matching '{query}'."
+            client_socket.send(response.encode())
 
         elif command.lower() == "exit":
             client_socket.send(b"Goodbye!")
