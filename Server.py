@@ -1,57 +1,37 @@
-# server.py
 import socket
 import threading
 from Data import parse_database_file
 
-database_file = "Pink_Floyd_DB.txt"
+# Constants
+DATABASE_FILE = "Pink_Floyd_DB.txt"
+SERVER_HOST = 'localhost'
+SERVER_PORT = 12345
+BUFFER_SIZE = 1024
+WELCOME_MESSAGE = b"Welcome to the Pink Floyd server. Please choose a command.\n"
+GOODBYE_MESSAGE = b"Goodbye!"
+INVALID_COMMAND_MESSAGE = b"Invalid command. Please try again.\n"
 
-# list of all albums parsed
-albums = parse_database_file(database_file)
+# Load albums
+albums = parse_database_file(DATABASE_FILE)
 
 
 def handle_list_albums():
-    album_names = [album['name'] for album in albums]
-    return album_names
+    return [album['name'] for album in albums]
 
 
 def handle_list_songs_in_album(album_name):
     for album in albums:
         if album['name'].lower() == album_name.lower():
-            song_names = [song['name'] for song in album['songs']]
-            return song_names
+            return [song['name'] for song in album['songs']]
     return None
 
 
-def get_song_length(song_name):
+def get_song_detail(song_name, detail):
     for album in albums:
         for song in album['songs']:
             if song['name'].lower() == song_name.lower():
-                return song['duration']
+                return song.get(detail, "Detail not found.")
     return "Song not found."
-
-
-def get_song_lyrics(song_name):
-    for album in albums:
-        for song in album['songs']:
-            if song['name'].lower() == song_name.lower():
-                return song['lyrics']
-    return "song not found."
-
-
-def open_connection():
-    curr_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    curr_server_socket.bind(('localhost', 12345))
-    curr_server_socket.listen(5)
-    print("Server is listening on port 12345...")
-    return curr_server_socket
-
-
-def handle_song_lyrics(song_name):
-    for album in albums:
-        for song in album['songs']:
-            if song['name'].lower() == song_name.lower():
-                return song['lyrics']
-    return None
 
 
 def handle_album_of_song(song_name):
@@ -62,95 +42,92 @@ def handle_album_of_song(song_name):
     return None
 
 
-def handle_search_song_by_name(query):
+def handle_search_song(query, key):
     results = []
     for album in albums:
         for song in album['songs']:
-            if query.lower() in song['name'].lower():
+            if query.lower() in song[key].lower():
                 results.append(song['name'])
     return results
 
 
-def handle_search_song_by_lyrics(query):
-    results = []
-    for album in albums:
-        for song in album['songs']:
-            if query.lower() in song['lyrics'].lower():
-                results.append(song['name'])
-    return results
+def send_response(client_socket, response):
+    client_socket.send(response.encode())
+
+
+def receive_input(client_socket, prompt=None):
+    if prompt:
+        client_socket.send(prompt.encode())
+    return client_socket.recv(BUFFER_SIZE).decode().strip()
 
 
 def handle_client(client_socket):
-    client_socket.send(b"Welcome to the Pink Floyd server. Please choose a command.\n")
+    client_socket.send(WELCOME_MESSAGE)
 
     while True:
-        command = client_socket.recv(1024).decode().strip()
+        command = receive_input(client_socket)
 
         if command == "1":
             albums_list = handle_list_albums()
             response = "Albums list:\n" + "\n".join(albums_list)
-            client_socket.send(response.encode())
+            send_response(client_socket, response)
 
         elif command == "2":
-            client_socket.send(b"Enter the album name:\n")
-            album_name = client_socket.recv(1024).decode().strip()
+            album_name = receive_input(client_socket, "Enter the album name:\n")
             songs_list = handle_list_songs_in_album(album_name)
-            if songs_list is not None:
-                response = f"Songs in '{album_name}':\n" + "\n".join(songs_list)
-            else:
-                response = f"No album found with the name '{album_name}'."
-            client_socket.send(response.encode())
+            response = f"Songs in '{album_name}':\n" + "\n".join(
+                songs_list) if songs_list else f"No album found with the name '{album_name}'."
+            send_response(client_socket, response)
 
         elif command == "3":
-            song_name = client_socket.recv(1024).decode().strip()
-            response = get_song_length(song_name)
-            client_socket.send(response.encode('utf-8'))
+            song_name = receive_input(client_socket, "Enter the song name:\n")
+            response = get_song_detail(song_name, 'duration')
+            send_response(client_socket, response)
 
         elif command == "4":
-            client_socket.send(b"Enter the song name:\n")
-            song_name = client_socket.recv(1024).decode().strip()
-            song_lyrics = handle_song_lyrics(song_name)
-            if song_lyrics is not None:
-                response = f"Lyrics of the song '{song_name}':\n{song_lyrics}"
-            else:
-                response = f"No song found with the name '{song_name}'."
-            client_socket.send(response.encode())
+            song_name = receive_input(client_socket, "Enter the song name:\n")
+            response = get_song_detail(song_name, 'lyrics')
+            send_response(client_socket, response)
 
         elif command == "5":
-            song_name = client_socket.recv(1024).decode().strip()
+            song_name = receive_input(client_socket, "Enter the song name:\n")
             album_name = handle_album_of_song(song_name)
-            if album_name is not None:
+            if album_name:
                 response = f"The song '{song_name}' is in the album '{album_name}'."
             else:
                 response = f"No song found with the name '{song_name}'."
-            client_socket.send(response.encode())
+            send_response(client_socket, response)
 
         elif command == "6":
-            query = client_socket.recv(1024).decode().strip()
-            results = handle_search_song_by_name(query)
-            if results:
-                response = f"Songs matching '{query}':\n" + "\n".join(results)
-            else:
-                response = f"No songs found matching '{query}'."
-            client_socket.send(response.encode())
+            query = receive_input(client_socket, "Enter the song name to search:\n")
+            results = handle_search_song(query, 'name')
+            response = f"Songs matching '{query}':\n" + "\n".join(
+                results) if results else f"No songs found matching '{query}'."
+            send_response(client_socket, response)
 
         elif command == "7":
-            query = client_socket.recv(1024).decode().strip()
-            results = handle_search_song_by_lyrics(query)
-            if results:
-                response = f"Songs with lyrics matching '{query}':\n" + "\n".join(results)
-            else:
-                response = f"No songs found with lyrics matching '{query}'."
-            client_socket.send(response.encode())
+            query = receive_input(client_socket, "Enter word to search song by lyrics:\n")
+            results = handle_search_song(query, 'lyrics')
+            response = f"Songs with lyrics matching '{query}':\n" + "\n".join(
+                results) if results else f"No songs found with lyrics matching '{query}'."
+            send_response(client_socket, response)
 
         elif command.lower() == "exit":
-            client_socket.send(b"Goodbye!")
+            client_socket.send(GOODBYE_MESSAGE)
             break
 
         else:
-            client_socket.send(b"Invalid command. Please try again.\n")
+            client_socket.send(INVALID_COMMAND_MESSAGE)
 
     client_socket.close()
+
+
+def open_connection():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((SERVER_HOST, SERVER_PORT))
+    server_socket.listen(5)
+    print(f"Server is listening on port {SERVER_PORT}...")
+    return server_socket
 
 
 def main():
@@ -160,14 +137,11 @@ def main():
         while True:
             client_socket, client_address = server_socket.accept()
             print(f"Connection from {client_address} has been established.")
-            # open a thread to handle client
             client_handler = threading.Thread(target=handle_client, args=(client_socket,))
             client_handler.start()
-
     finally:
         server_socket.close()
 
 
 if __name__ == "__main__":
     main()
-
