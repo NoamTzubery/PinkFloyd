@@ -14,6 +14,7 @@ def parse_database_file(database_file):
                     'name': album_name,
                     'year': release_year,
                     'songs': []
+
                 }
                 albums.append(current_album)
             elif line.startswith('*'):

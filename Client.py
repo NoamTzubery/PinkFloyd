@@ -1,49 +1,63 @@
 import socket
 
+# Configuration
+SERVER_ADDRESS = 'localhost'
+SERVER_PORT = 12345
+BUFFER_SIZE = 1024
+
+# Commands
+COMMANDS = {
+    "1": "List of albums",
+    "2": "Songs in an album",
+    "3": "Length of a song",
+    "4": "Lyrics of a song",
+    "5": "Find album of a song",
+    "6": "Search song by name",
+    "7": "Search song by lyrics",
+    "exit": "Type 'exit' to quit"
+}
+
+
+def display_menu():
+    print("=========================")
+    for key, value in COMMANDS.items():
+        print(f"{key}. {value}")
+    print("=========================")
+
+
+def handle_command(client_socket, command):
+    client_socket.send(command.encode())
+    if command in ["2", "3", "4", "5", "6", "7"]:
+        query = input(f"Enter the {COMMANDS[command].split(' ')[-2]}: ")
+        client_socket.send(query.encode())
+
+    response = client_socket.recv(BUFFER_SIZE).decode()
+    print(response)
+
 
 def main():
-    # Create a socket object
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Connect to the server
-    server_address = ('localhost', 12345)
-    client_socket.connect(server_address)
+    client_socket.connect((SERVER_ADDRESS, SERVER_PORT))
 
     try:
+        welcome_message = client_socket.recv(BUFFER_SIZE).decode()
+        print(welcome_message)
+
         while True:
-            # Receive welcome message from server
-            welcome_message = client_socket.recv(1024).decode()
-            print(welcome_message)
+            display_menu()
+            command = input("Enter command: ").strip().lower()
 
-            while True:
-                # Get user input for command
-                command = input("Enter command (1 to list albums, 'exit' to quit): ")
-
-                # Get user input for command
-                command = input("=========================")
-                command = input("1. List of albums")
-                command = input("2. Songs in an album")
-                command = input("3. Length of a song")
-                command = input("4. Lyrics of a song")
-                command = input("5. Find album of a song")
-                command = input("6. Search song by name")
-                command = input("7. Search song by lyrics")
-                command = input("Type exit to exit")
-                command = input("=========================\n")
-
-                # Send command to server
+            if command == 'exit':
                 client_socket.send(command.encode())
-
-                # Receive response from server
-                response = client_socket.recv(1024).decode()
+                response = client_socket.recv(BUFFER_SIZE).decode()
                 print(response)
+                break
 
-                # Handle exit command
-                if command.lower() == 'exit':
-                    break
-
+            if command in COMMANDS:
+                handle_command(client_socket, command)
+            else:
+                print("Invalid command. Please try again.")
     finally:
-        # Close the socket connection
         client_socket.close()
 
 
