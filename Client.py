@@ -1,9 +1,13 @@
 import socket
+import configparser
 
 # Configuration
-SERVER_ADDRESS = 'localhost'
-SERVER_PORT = 12345
-BUFFER_SIZE = 1024
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+SERVER_ADDRESS = config['server']['address']
+SERVER_PORT = int(config['server']['port'])
+BUFFER_SIZE = int(config['server']['buffer_size'])
 
 # Commands
 COMMANDS = {
@@ -19,6 +23,9 @@ COMMANDS = {
 
 
 def display_menu():
+    """
+    Displays the menu of available commands.
+    """
     print("=========================")
     for key, value in COMMANDS.items():
         print(f"{key}. {value}")
@@ -26,16 +33,28 @@ def display_menu():
 
 
 def handle_command(client_socket, command):
-    client_socket.send(command.encode())
-    if command in ["2", "3", "4", "5", "6", "7"]:
-        query = input(f"Enter the {COMMANDS[command].split(' ')[-2]}: ")
-        client_socket.send(query.encode())
+    """
+    Handles the given command by sending it to the server and processing the response.
 
+    Args:
+        client_socket (socket.socket): The socket object for the client.
+        command (str): The command to be sent to the server.
+    """
+    client_socket.send(command.encode())
     response = client_socket.recv(BUFFER_SIZE).decode()
     print(response)
 
+    if command in ["2", "3", "4", "5", "6", "7"]:
+        query = input("Enter your input: ").strip()
+        client_socket.send(query.encode())
+        response = client_socket.recv(BUFFER_SIZE).decode()
+        print(response)
+
 
 def main():
+    """
+    The main function that sets up the client socket, connects to the server, and handles user input.
+    """
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((SERVER_ADDRESS, SERVER_PORT))
 
@@ -47,14 +66,10 @@ def main():
             display_menu()
             command = input("Enter command: ").strip().lower()
 
-            if command == 'exit':
-                client_socket.send(command.encode())
-                response = client_socket.recv(BUFFER_SIZE).decode()
-                print(response)
-                break
-
             if command in COMMANDS:
                 handle_command(client_socket, command)
+                if command == 'exit':
+                    break
             else:
                 print("Invalid command. Please try again.")
     finally:
@@ -63,3 +78,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

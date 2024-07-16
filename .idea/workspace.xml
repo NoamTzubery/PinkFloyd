@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e868b26d-83be-4af2-825e-62a0b3120a4d" name="Changes" comment="finished commands">
+      <change afterPath="$PROJECT_DIR$/ReadPacket.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/WritePacket.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data.py" beforeDir="false" afterPath="$PROJECT_DIR$/Data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/Server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -40,7 +41,7 @@
         &quot;id&quot;: &quot;PR_kwDOMRK_r850bq-l&quot;,
         &quot;number&quot;: 1
       },
-      &quot;lastSeen&quot;: 1720096264905
+      &quot;lastSeen&quot;: 1720423010538
     }
   ]
 }</component>
@@ -69,7 +70,8 @@
     "Python.Test.executor": "Run",
     "Python.activate_this.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "#1 on Develop",
+    "git-widget-placeholder": "newDevelop",
+    "ignore.virus.scanning.warn.message": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -155,7 +157,11 @@
       <updated>1719949453565</updated>
       <workItem from="1719949455062" duration="38046000" />
       <workItem from="1720331914458" duration="2704000" />
-      <workItem from="1720419926046" duration="307000" />
+      <workItem from="1720419926046" duration="868000" />
+      <workItem from="1720422369984" duration="2573000" />
+      <workItem from="1720503954186" duration="7538000" />
+      <workItem from="1720531134708" duration="1432000" />
+      <workItem from="1720595319693" duration="14635000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -197,7 +203,15 @@
       <option name="project" value="LOCAL" />
       <updated>1720080120870</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="finished commands">
+      <option name="closed" value="true" />
+      <created>1720420417157</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1720420417157</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -222,7 +236,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PinkFloyd$activate_this.coverage" NAME="activate_this Coverage Results" MODIFIED="1719950020091" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv/Scripts" />
     <SUITE FILE_PATH="coverage/PinkFloyd$Test.coverage" NAME="Test Coverage Results" MODIFIED="1719988624478" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PinkFloyd$Client.coverage" NAME="Client Coverage Results" MODIFIED="1720077375143" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PinkFloyd$Server.coverage" NAME="Server Coverage Results" MODIFIED="1720077373055" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PinkFloyd$Client.coverage" NAME="Client Coverage Results" MODIFIED="1721116569902" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PinkFloyd$Server.coverage" NAME="Server Coverage Results" MODIFIED="1721116567097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
