@@ -1,3 +1,8 @@
+class GenericPDU:
+    def __init__(self):
+        pass
+
+
 def write_packet(request, data):
     """
     Writes a packet with the given request, data, and error parts.
@@ -9,7 +14,6 @@ def write_packet(request, data):
     Returns:
         bytes: The complete packet as bytes.
     """
-
     error = 0
     if not (1 <= request <= 8):
         error = 1
@@ -23,3 +27,23 @@ def write_packet(request, data):
     packet = request_bytes + data_bytes + error_bytes
     return packet
 
+
+def read_packet(packet):
+    """
+    Reads a packet and extracts the request, data, and error parts.
+
+    Args:
+        packet (bytes): The complete packet as bytes.
+
+    Returns:
+        tuple: A tuple containing the request (int), data (str), and error (int).
+    """
+    request = int.from_bytes(packet[:4], byteorder='big')
+    data = packet[4:1028].rstrip(b'\x00').decode('utf-8')
+    error = int.from_bytes(packet[1028:], byteorder='big')
+
+    return request, data, error
+
+
+class PinkFloydPDU(GenericPDU):
+    pass
