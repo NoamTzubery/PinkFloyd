@@ -1,9 +1,15 @@
 import socket
+import configparser
+from WritePacket import write_packet
+from ReadPacket import read_packet
 
 # Configuration
-SERVER_ADDRESS = 'localhost'
-SERVER_PORT = 12345
-BUFFER_SIZE = 1024
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+SERVER_ADDRESS = config['server']['address']
+SERVER_PORT = int(config['server']['port'])
+BUFFER_SIZE = int(config['server']['buffer_size'])
 
 # Commands
 COMMANDS = {
@@ -14,28 +20,61 @@ COMMANDS = {
     "5": "Find album of a song",
     "6": "Search song by name",
     "7": "Search song by lyrics",
-    "exit": "Type 'exit' to quit"
+    "8": "Exit"
 }
 
 
 def display_menu():
+    """
+    Displays the menu of available commands.
+    """
     print("=========================")
     for key, value in COMMANDS.items():
         print(f"{key}. {value}")
     print("=========================")
 
 
-def handle_command(client_socket, command):
-    client_socket.send(command.encode())
-    if command in ["2", "3", "4", "5", "6", "7"]:
-        query = input(f"Enter the {COMMANDS[command].split(' ')[-2]}: ")
-        client_socket.send(query.encode())
+def send_and_receive_packet(client_socket, command, data=""):
+    packet = write_packet(int(command), data)
+    client_socket.send(packet)
+    response_packet = client_socket.recv(BUFFER_SIZE)
+    _, data, error = read_packet(response_packet)
+    if error == 1:
+        print("Invalid input")
+    else:
+        print(data)
 
-    response = client_socket.recv(BUFFER_SIZE).decode()
-    print(response)
+
+def handle_command(client_socket, command):
+    """
+    Handles the given command by sending it to the server and processing the response.
+
+    Args:
+        client_socket (socket.socket): The socket object for the client.
+        command (str): The command to be sent to the server.
+    """
+    if command == "1":
+        send_and_receive_packet(client_socket, command)
+    elif command == "2":
+        album_name = input("Enter the album name: ").strip()
+        send_and_receive_packet(client_socket, command, album_name)
+    elif command in ["3", "4", "5"]:
+        song_name = input("Enter the song name: ").strip()
+        send_and_receive_packet(client_socket, command, song_name)
+    elif command in ["6", "7"]:
+        query = input("Enter your input: ").strip()
+        send_and_receive_packet(client_socket, command, query)
+    elif command == "8":
+        send_and_receive_packet(client_socket, command)
+        print("Goodbye!")
+        return False
+    return True
 
 
 def main():
+    """
+    The main function that sets up the client socket, connects to the server, and handles user input.
+    """
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((SERVER_ADDRESS, SERVER_PORT))
 
@@ -46,15 +85,9 @@ def main():
         while True:
             display_menu()
             command = input("Enter command: ").strip().lower()
-
-            if command == 'exit':
-                client_socket.send(command.encode())
-                response = client_socket.recv(BUFFER_SIZE).decode()
-                print(response)
-                break
-
             if command in COMMANDS:
-                handle_command(client_socket, command)
+                if not handle_command(client_socket, command):
+                    break
             else:
                 print("Invalid command. Please try again.")
     finally:
